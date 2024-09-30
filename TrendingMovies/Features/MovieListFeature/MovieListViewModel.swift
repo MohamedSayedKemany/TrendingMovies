@@ -17,6 +17,7 @@ class MovieListViewModel: ObservableObject {
 
     private let networkService: NetworkService
     private var cancellables = Set<AnyCancellable>()
+    private let cachingManager = CachingManager.shared
 
     var filteredMovies: [Movie] {
         var filteredMovies = movies
@@ -47,21 +48,28 @@ class MovieListViewModel: ObservableObject {
                                     URLQueryItem(name: "page", value: String(page)),
                                     URLQueryItem(name: "sort_by", value: "popularity.desc")
                                 ])
-
-        isLoading = true
-        networkService.request(endpoint: endpoint, modelType: MovieResponse.self)
-            .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { [weak self] completion in
-                self?.isLoading = false
-                switch completion {
-                case .finished:
-                    break
-                case .failure(let error):
-                    self?.error = error
-                }
-            }, receiveValue: { [weak self] movies in
-                self?.movies.append(contentsOf: movies.results)
-            })
-            .store(in: &cancellables)
+        if let cachedMovies: [Movie] = cachingManager.retrieve(forKey: "trendingMovies") {
+                    movies = cachedMovies
+        } else {
+            
+            isLoading = true
+            networkService.request(endpoint: endpoint, modelType: MovieResponse.self)
+                .receive(on: DispatchQueue.main)
+                .sink(receiveCompletion: { [weak self] completion in
+                    self?.isLoading = false
+                    switch completion {
+                    case .finished:
+                        break
+                    case .failure(let error):
+                        self?.error = error
+                    }
+                }, receiveValue: { [weak self] movies in
+                    if movies.results != self?.movies {
+                        self?.movies.append(contentsOf: movies.results)
+                        self?.cachingManager.save(data: movies.results, forKey: "trendingMovies")
+                    }
+                })
+                .store(in: &cancellables)
+        }
     }
 }

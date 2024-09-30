@@ -42,7 +42,9 @@ struct MovieListView: View {
                     
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: width / 2))]) {
                         ForEach(viewModel.filteredMovies) { movie in
-                            MovieCellView(movie: movie)
+                            NavigationLink(destination: MovieDetailsView(viewModel: MovieDetailsViewModel(movieId: movie.id))) {
+                                MovieCellView(movie: movie)
+                            }
                         }
                     }
                     .padding()

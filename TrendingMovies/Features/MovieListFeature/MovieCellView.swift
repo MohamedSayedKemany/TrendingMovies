@@ -23,10 +23,12 @@ struct MovieCellView: View {
             .frame(maxWidth: .infinity)
 
             Text(movie.title)
+                .foregroundColor(.black)
                 .font(.headline)
                 .padding(.top, 4)
             
             Text(movie.releaseDate)
+                .foregroundColor(.black)
                 .font(.caption)
                 .padding(.top, 4)
         }
@@ -34,8 +36,4 @@ struct MovieCellView: View {
         .background(Color.gray)
         .cornerRadius(8)
     }
-}
-
-#Preview {
-    MovieCellView(movie: Movie(adult: true, backdropPath: "", genreIDS: [], id: 33, originalLanguage: .en, originalTitle: "", overview: "", popularity: 3.4, posterPath: "", releaseDate: "2/2/1995", title: "batman", video: false, voteAverage: 6.5, voteCount: 6))
 }
