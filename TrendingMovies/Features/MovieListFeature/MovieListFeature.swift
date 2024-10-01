@@ -11,12 +11,11 @@ struct MovieListView: View {
     @ObservedObject var viewModel: MovieListViewModel
     @ObservedObject var genreViewModel: GenreViewModel
     
-    init(viewModel: MovieListViewModel, genreViewModel: GenreViewModel ) {
+    init(viewModel: MovieListViewModel, genreViewModel: GenreViewModel) {
         self.viewModel = viewModel
         self.genreViewModel = genreViewModel
     }
     
-    let width = UIScreen.main.bounds.size.width - 50
     var body: some View {
         NavigationView {
             ScrollView {
@@ -26,7 +25,7 @@ struct MovieListView: View {
                         .padding()
                     
                     ScrollView(.horizontal) {
-                        HStack {
+                        LazyHStack {
                             ForEach(genreViewModel.genres) { genre in
                                 FilterChip(genre: genre, isSelected: viewModel.selectedGenres.contains(genre.id), onSelect: { isSelected in
                                     if isSelected {
@@ -40,20 +39,28 @@ struct MovieListView: View {
                         .padding()
                     }
                     
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: width / 2))]) {
-                        ForEach(viewModel.filteredMovies) { movie in
-                            NavigationLink(destination: MovieDetailsView(viewModel: MovieDetailsViewModel(movieId: movie.id))) {
-                                MovieCellView(movie: movie)
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: UIScreen.main.bounds.size.width / 2 - 5))]) {
+                            ForEach(viewModel.filteredMovies) { movie in
+                                NavigationLink(destination: MovieDetailsView(viewModel: MovieDetailsViewModel(movieId: movie.id))) {
+                                    MovieCellView(movie: movie)
+                                }
+                                .onAppear {
+                                    // Optimized fetch: Only triggers when nearing the end of the list
+                                    if movie == viewModel.filteredMovies.last && !viewModel.isLoadingMore {
+                                        viewModel.fetchMoreMovies()
+                                    }
+                                }
                             }
-                        }
+                        .padding()
                     }
-                    .padding()
                 }
             }
             .background(Color.white)
             .onAppear {
                 if viewModel.movies.isEmpty {
                     viewModel.fetchMovies(page: 1)
+                }
+                if genreViewModel.genres.isEmpty {
                     genreViewModel.fetchGenres()
                 }
             }

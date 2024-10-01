@@ -12,7 +12,7 @@ struct MovieCellView: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            AsyncImage(url: URL(string: "https://image.tmdb.org/t/p/w500/\(movie.posterPath)")!) { image in
+            AsyncImage(url: URL(string: "\(Constants.imageBaseUrl)\(movie.posterPath)")!) { image in
                 image
                     .resizable()
                     .aspectRatio(contentMode: .fit)

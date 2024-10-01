@@ -11,9 +11,10 @@ struct MovieDetailsView: View {
     @ObservedObject var viewModel: MovieDetailsViewModel
 
     var body: some View {
-            ScrollView {
-                VStack(alignment: .leading) {
-                    AsyncImage(url: URL(string: "https://image.tmdb.org/t/p/w500/\(viewModel.movie?.posterPath ?? "")")!) { image in
+        ScrollView {
+            VStack(alignment: .leading) {
+                if let posterPath = viewModel.movie?.posterPath, let imageUrl = URL(string: "\(Constants.imageBaseUrl)\(posterPath)") {
+                    AsyncImage(url: imageUrl) { image in
                         image
                             .resizable()
                             .aspectRatio(contentMode: .fit)
@@ -22,114 +23,116 @@ struct MovieDetailsView: View {
                         ProgressView()
                     }
                     .frame(maxWidth: .infinity)
-                    
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(viewModel.movie?.title ?? "")
-                                .font(.title)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                            Text("Genres: \(viewModel.movie?.genres.map { $0.name }.joined(separator: ", ") ?? "")")
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                        }
-                        Spacer()
-                        Image(systemName: "star.fill")
-                            .foregroundColor(.yellow)
-                        Text(String(format: "%.1f", viewModel.movie?.voteAverage ?? 0))
-                    }
+                }
+
+                movieInfoSection
                     .padding()
-                    
-                    // Release Date
-                    Text("Release Date: \(extractYearAndMonth(from: viewModel.movie?.releaseDate ?? ""))")
+
+                movieDetailsSection
+                    .padding()
+
+               
+            }
+            .padding()
+        }
+    }
+    
+    private var movieInfoSection: some View {
+        HStack {
+            if let posterPath = viewModel.movie?.posterPath, let imageUrl = URL(string: "\(Constants.imageBaseUrl)\(posterPath)") {
+                AsyncImage(url: imageUrl) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 100, height: 150)
+                } placeholder: {
+                    ProgressView()
+                }
+            }
+            
+            VStack(alignment: .leading) {
+                Text(viewModel.movie?.originalTitle ?? "")
+                    .font(.title3)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.black)
+                
+                if let genres = viewModel.movie?.genres {
+                    Text("Genres: \(genres.map { $0.name }.joined(separator: ", "))")
                         .font(.subheadline)
                         .foregroundColor(.gray)
-                    
-                    // Overview
-                    Text(viewModel.movie?.overview ?? "")
+                }
+            }
+        }
+    }
+
+    private var movieDetailsSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+
+            if let overview = viewModel.movie?.overview {
+                Text(overview)
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+                    .padding(.top, 4)
+            }
+            
+            Spacer()
+            
+            VStack(alignment: .leading) {
+                if let homepage = viewModel.movie?.homepage, let url = URL(string: homepage) {
+                    Link("Visit Homepage", destination: url)
                         .font(.subheadline)
-                        .foregroundColor(.gray)
+                        .foregroundColor(.blue)
                         .padding(.top, 4)
-                    
-                    // Homepage
-                    if let homepage = viewModel.movie?.homepage {
-                        Link("Visit Homepage", destination: URL(string: homepage)!)
+                }
+                                
+                if let spokenLanguages = viewModel.movie?.spokenLanguages {
+                    Text("Spoken Languages: \(spokenLanguages.map { $0.name }.joined(separator: ", "))")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                }
+            }
+            
+            HStack {
+                VStack(alignment: .leading) {
+                    if let status = viewModel.movie?.status {
+                        Text("Status: \(status)")
                             .font(.subheadline)
-                            .foregroundColor(.blue)
-                            .padding(.top, 4)
+                            .foregroundColor(.gray)
                     }
                     
-                    // Budget and Revenue
-                    HStack {
+                    if let budget = viewModel.movie?.budget {
                         Text("Budget:")
                             .font(.subheadline)
                             .foregroundColor(.gray)
-                        Text(formatCurrency(viewModel.movie?.budget))
+                        
+                        Text(AppUtils.formatCurrency(budget))
                             .font(.subheadline)
                             .bold()
-                            .foregroundColor(.white)
-                        Spacer()
+                            .foregroundColor(.gray)
+                    }
+                }
+                
+                Spacer()
+                
+                VStack(alignment: .trailing) {
+                    if let runtime = viewModel.movie?.runtime {
+                        Text("Runtime: \(runtime) minutes")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                    }
+                    if let revenue = viewModel.movie?.revenue {
                         Text("Revenue:")
-                            .font(.subheadline)
+                            .font(.footnote)
                             .foregroundColor(.gray)
-                        Text(formatCurrency(viewModel.movie?.revenue))
-                            .font(.subheadline)
-                            .bold()
-                            .foregroundColor(.white)
-                    }
-                    .padding(.top, 4)
-                    
-                    // Spoken Languages
-                    if let spokenLanguages = viewModel.movie?.spokenLanguages {
-                        Text("Spoken Languages: \(spokenLanguages.map { $0.name }.joined(separator: ", "))")
-                            .font(.subheadline)
+                        
+                        Text(AppUtils.formatCurrency(revenue))
+                            .font(.footnote)
                             .foregroundColor(.gray)
-                            .padding(.top, 4)
                     }
-                    
-                    // Status
-                    Text("Status: \(viewModel.movie?.status ?? "")")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                        .padding(.top, 4)
-                    
-                    // Runtime
-                    Text("Runtime: \(viewModel.movie?.runtime ?? 0) minutes")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                        .padding(.top, 4)
                 }
-                               
-                .onAppear {
-                    viewModel.fetchMovieDetails(movieId: viewModel.movieId)
-                }
-                .padding()
             }
-            .navigationBarTitle(viewModel.movie?.title ?? "")
         }
-    
-    func extractYearAndMonth(from dateString: String) -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd" // Adjust format if necessary
-        guard let date = dateFormatter.date(from: dateString) else { return "" }
-
-        let calendar = Calendar.current
-        let year = calendar.component(.year, from: date)
-        let month = calendar.component(.month, from: date)
-        let monthFormatter = DateFormatter()
-        monthFormatter.dateFormat = "MMMM" // Format month name as desired
-        let monthName = monthFormatter.string(from: date)
-
-        return "\(monthName) \(year)"
     }
-    
-    private func formatCurrency(_ amount: Int?) -> String {
-            let formatter = NumberFormatter()
-            formatter.numberStyle = .currency
-            formatter.locale = Locale(identifier: "en_US")
-     // Adjust locale as needed
-            return formatter.string(from: NSNumber(value: amount ?? 0)) ?? ""
-        }
 }
 
 #Preview {

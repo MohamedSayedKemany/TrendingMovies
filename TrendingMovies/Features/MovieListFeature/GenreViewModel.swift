@@ -20,7 +20,7 @@ class GenreViewModel: ObservableObject {
     }
 
     func fetchGenres() {
-        let endpoint = Endpoint(path: "https://api.themoviedb.org/3/genre/movie/list")
+        let endpoint = Endpoint(path: "genre/movie/list")
 
         networkService.request(endpoint: endpoint, modelType: Genres.self)
             .receive(on: DispatchQueue.main)

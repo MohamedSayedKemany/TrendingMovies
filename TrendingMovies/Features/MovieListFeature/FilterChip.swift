@@ -11,7 +11,7 @@ struct FilterChip: View {
     let genre: Genre
     let isSelected: Bool
     let onSelect: (Bool) -> Void
-
+    
     var body: some View {
         Button(action: {
             onSelect(!isSelected)

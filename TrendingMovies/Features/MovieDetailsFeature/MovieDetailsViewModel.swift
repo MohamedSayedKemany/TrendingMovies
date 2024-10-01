@@ -22,21 +22,31 @@ class MovieDetailsViewModel: ObservableObject {
         self.networkService = networkService
         self.cachingManager = cachingManager
         self.movieId = movieId
+        fetchMovieDetails(movieId: movieId)
     }
     
     func fetchMovieDetails(movieId: Int) {
-        let endpoint = Endpoint(path: "https://api.themoviedb.org/3/movie/\(movieId)")
+        if !NetworkMonitor.shared.isConnected {
+            if let cachedMovie: MovieDetails = cachingManager.retrieve(forKey: "movieDetails_\(movieId)") {
+                self.movie = cachedMovie
+                return
+            }
+        }
         
+        let endpoint = Endpoint(path: "movie/\(movieId)")
         isLoading = true
+        
         networkService.request(endpoint: endpoint, modelType: MovieDetails.self)
             .receive(on: DispatchQueue.main)
+            .handleEvents(receiveCancel: { [weak self] in
+                self?.isLoading = false
+            })
             .sink(receiveCompletion: { [weak self] completion in
                 self?.isLoading = false
                 switch completion {
                 case .finished:
                     break
                 case .failure(let error):
-                    
                     self?.error = error
                 }
             }, receiveValue: { [weak self] movie in
@@ -44,5 +54,9 @@ class MovieDetailsViewModel: ObservableObject {
                 self?.cachingManager.save(data: movie, forKey: "movieDetails_\(movieId)")
             })
             .store(in: &cancellables)
+    }
+    
+    deinit {
+        cancellables.removeAll()
     }
 }

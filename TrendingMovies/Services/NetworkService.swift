@@ -34,10 +34,11 @@ enum NetworkError: Error {
 }
 
 class NetworkServiceImpl: NetworkService {
-    private let apiKey = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1Y2Y4OTBiNjIzZTkyMTJjZTAxNDJiZTllMmE3NWJlMCIsIm5iZiI6MTcyNzY4ODc4OC4zNTc3MzIsInN1YiI6IjY2ZmE2ZjcyM2EwZjVhMDhjOGYxODNhZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.jZxCaAy80Ck5aa36HzbFzQibBbo0Kn4GtfZg8g-cTF0"
+    private let apiKey = Constants.apiKey
     
     func request<T: Decodable>(endpoint: Endpoint, modelType: T.Type) -> AnyPublisher<T, NetworkError> {
-        guard let url = URL(string: endpoint.path) else {
+        let urlString = Constants.baseURL + endpoint.path
+        guard let url = URL(string: urlString) else {
             return Fail(error: NetworkError.invalidURL).eraseToAnyPublisher()
         }
 

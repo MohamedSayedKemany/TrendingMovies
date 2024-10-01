@@ -14,27 +14,18 @@ class MovieListViewModel: ObservableObject {
     @Published var error: Error?
     @Published var searchText = ""
     @Published var selectedGenres: Set<Int> = []
-
+    
+    private var currentPage = 1
     private let networkService: NetworkService
     private var cancellables = Set<AnyCancellable>()
     private let cachingManager = CachingManager.shared
-
+    
+    var isLoadingMore = false
     var filteredMovies: [Movie] {
-        var filteredMovies = movies
-
-        if !searchText.isEmpty {
-            filteredMovies = filteredMovies.filter { movie in
-                movie.title.lowercased().contains(searchText.lowercased())
-            }
+        movies.filter { movie in
+            (searchText.isEmpty || movie.title.lowercased().contains(searchText.lowercased())) &&
+            (selectedGenres.isEmpty || movie.genreIDS.contains(where: { selectedGenres.contains($0) }))
         }
-
-        if !selectedGenres.isEmpty {
-            filteredMovies = filteredMovies.filter { movie in
-                movie.genreIDS.contains(where: { selectedGenres.contains($0) })
-            }
-        }
-
-        return filteredMovies
     }
     
     init(networkService: NetworkService = NetworkServiceImpl()) {
@@ -42,19 +33,26 @@ class MovieListViewModel: ObservableObject {
     }
 
     func fetchMovies(page: Int) {
-        let endpoint = Endpoint(path: "https://api.themoviedb.org/3/discover/movie",
+        guard !isLoading else { return }
+        
+        let endpoint = Endpoint(path: "discover/movie",
                                 queryItems: [
                                     URLQueryItem(name: "include_adult", value: "false"),
                                     URLQueryItem(name: "page", value: String(page)),
                                     URLQueryItem(name: "sort_by", value: "popularity.desc")
                                 ])
-        if let cachedMovies: [Movie] = cachingManager.retrieve(forKey: "trendingMovies") {
-                    movies = cachedMovies
+        
+        if !NetworkMonitor.shared.isConnected {
+            if let cachedMovies: [Movie] = cachingManager.retrieve(forKey: "trendingMovies") {
+                self.movies = cachedMovies
+            }
         } else {
-            
             isLoading = true
             networkService.request(endpoint: endpoint, modelType: MovieResponse.self)
                 .receive(on: DispatchQueue.main)
+                .handleEvents(receiveCancel: { [weak self] in
+                    self?.isLoading = false
+                })
                 .sink(receiveCompletion: { [weak self] completion in
                     self?.isLoading = false
                     switch completion {
@@ -63,13 +61,26 @@ class MovieListViewModel: ObservableObject {
                     case .failure(let error):
                         self?.error = error
                     }
-                }, receiveValue: { [weak self] movies in
-                    if movies.results != self?.movies {
-                        self?.movies.append(contentsOf: movies.results)
-                        self?.cachingManager.save(data: movies.results, forKey: "trendingMovies")
+                }, receiveValue: { [weak self] movieResponse in
+                    guard let self = self else { return }
+                    if movieResponse.results != self.movies {
+                        self.movies.append(contentsOf: movieResponse.results)
+                        self.isLoadingMore = false
+                        self.cachingManager.save(data: movieResponse.results, forKey: "trendingMovies")
                     }
                 })
                 .store(in: &cancellables)
         }
+    }
+    
+    func fetchMoreMovies() {
+        guard !isLoadingMore else { return }
+        isLoadingMore = true
+        currentPage += 1
+        fetchMovies(page: currentPage)
+    }
+    
+    deinit {
+        cancellables.removeAll()
     }
 }
