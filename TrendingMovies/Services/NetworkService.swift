@@ -41,24 +41,24 @@ class NetworkServiceImpl: NetworkService {
         guard let url = URL(string: urlString) else {
             return Fail(error: NetworkError.invalidURL).eraseToAnyPublisher()
         }
-
+        
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = endpoint.method.rawValue
-
+        
         if let parameters = endpoint.parameters {
             urlRequest.httpBody = try? JSONSerialization.data(withJSONObject: parameters, options: [])
             urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
         }
         
         if let queryItems = endpoint.queryItems {
-                    var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)!
-                    urlComponents.queryItems = queryItems
-                    urlRequest.url = urlComponents.url
-
-                }
+            var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)!
+            urlComponents.queryItems = queryItems
+            urlRequest.url = urlComponents.url
+            
+        }
         
         urlRequest.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-
+        
         return URLSession.shared.dataTaskPublisher(for: urlRequest)
             .map {
                 $0.data

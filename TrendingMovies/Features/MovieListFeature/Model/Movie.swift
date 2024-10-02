@@ -8,7 +8,7 @@
 import Foundation
 
 // MARK: - Movie
-struct Movie: Codable, Identifiable, Equatable {
+struct Movie: Codable, Identifiable, Equatable, Hashable {
     let adult: Bool?
     let backdropPath: String?
     let genreIDS: [Int]
@@ -51,20 +51,20 @@ struct Movie: Codable, Identifiable, Equatable {
         try container.encode(voteCount, forKey: .voteCount)
     }
 
-    init(from decoder: Decoder) throws {
-        let values = try decoder.container(keyedBy: CodingKeys.self)
-        adult = try values.decodeIfPresent(Bool.self, forKey: .adult)
-        backdropPath = try values.decodeIfPresent(String.self, forKey: .backdropPath)
-        genreIDS = try values.decode([Int].self, forKey: .genreIDS)
-        id = try values.decodeIfPresent(Int.self, forKey: .id)!
-        originalTitle = try values.decodeIfPresent(String.self, forKey: .originalTitle)
-        overview = try values.decodeIfPresent(String.self, forKey: .overview)
-        popularity = try values.decodeIfPresent(Double.self, forKey: .popularity)
-        posterPath = try values.decode(String.self, forKey: .posterPath)
-        releaseDate = try values.decode(String.self, forKey: .releaseDate)
-        title = try values.decode(String.self, forKey: .title)
-        video = try values.decodeIfPresent(Bool.self, forKey: .video)
-        voteAverage = try values.decodeIfPresent(Double.self, forKey: .voteAverage)
-        voteCount = try values.decodeIfPresent(Int.self, forKey: .voteCount) ?? 0
-    }
+//    init(from decoder: Decoder) throws {
+//        let values = try decoder.container(keyedBy: CodingKeys.self)
+//        adult = try values.decodeIfPresent(Bool.self, forKey: .adult)
+//        backdropPath = try values.decodeIfPresent(String.self, forKey: .backdropPath)
+//        genreIDS = try values.decode([Int].self, forKey: .genreIDS)
+//        id = try values.decodeIfPresent(Int.self, forKey: .id)!
+//        originalTitle = try values.decodeIfPresent(String.self, forKey: .originalTitle)
+//        overview = try values.decodeIfPresent(String.self, forKey: .overview)
+//        popularity = try values.decodeIfPresent(Double.self, forKey: .popularity)
+//        posterPath = try values.decode(String.self, forKey: .posterPath)
+//        releaseDate = try values.decode(String.self, forKey: .releaseDate)
+//        title = try values.decode(String.self, forKey: .title)
+//        video = try values.decodeIfPresent(Bool.self, forKey: .video)
+//        voteAverage = try values.decodeIfPresent(Double.self, forKey: .voteAverage)
+//        voteCount = try values.decodeIfPresent(Int.self, forKey: .voteCount) ?? 0
+//    }
 }

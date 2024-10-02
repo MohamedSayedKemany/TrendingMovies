@@ -27,11 +27,11 @@ struct MovieListView: View {
                     ScrollView(.horizontal) {
                         LazyHStack {
                             ForEach(genreViewModel.genres) { genre in
-                                FilterChip(genre: genre, isSelected: viewModel.selectedGenres.contains(genre.id), onSelect: { isSelected in
+                                FilterChip(genre: genre, isSelected: viewModel.selectedGenres.contains(genre.id), onSelect: { [weak viewModel] isSelected in
                                     if isSelected {
-                                        viewModel.selectedGenres.insert(genre.id)
+                                        viewModel?.selectedGenres.insert(genre.id)
                                     } else {
-                                        viewModel.selectedGenres.remove(genre.id)
+                                        viewModel?.selectedGenres.remove(genre.id)
                                     }
                                 })
                             }
@@ -44,11 +44,11 @@ struct MovieListView: View {
                                 NavigationLink(destination: MovieDetailsView(viewModel: MovieDetailsViewModel(movieId: movie.id))) {
                                     MovieCellView(movie: movie)
                                 }
-                                .onAppear {
-                                    // Optimized fetch: Only triggers when nearing the end of the list
-                                    if movie == viewModel.filteredMovies.last && !viewModel.isLoadingMore {
-                                        viewModel.fetchMoreMovies()
-                                    }
+                            }
+                            .onAppear { [weak viewModel] in
+                                guard let viewModel else { return }
+                                if !viewModel.isLoadingMore {
+                                    viewModel.fetchMoreMovies()
                                 }
                             }
                         .padding()
@@ -56,7 +56,8 @@ struct MovieListView: View {
                 }
             }
             .background(Color.white)
-            .onAppear {
+            .onAppear { [weak viewModel] in
+                guard let viewModel else { return }
                 if viewModel.movies.isEmpty {
                     viewModel.fetchMovies(page: 1)
                 }

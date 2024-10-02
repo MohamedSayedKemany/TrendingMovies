@@ -1,0 +1,49 @@
+{
+  "page": 2,
+  "results": [
+    {
+      "adult": false,
+      "backdrop_path": "/hdFIdXwS8FSN2wIsuotjW1mshI0.jpg",
+      "genre_ids": [
+        16,
+        35,
+        12,
+        10751
+      ],
+      "id": 831815,
+      "original_language": "en",
+      "original_title": "Saving Bikini Bottom: The Sandy Cheeks Movie",
+      "overview": "When Bikini Bottom is scooped from the ocean, scientific squirrel Sandy Cheeks and her pal SpongeBob SquarePants saddle up for Texas to save their town.",
+      "popularity": 487.482,
+      "poster_path": "/30YnfZdMNIV7noWLdvmcJS0cbnQ.jpg",
+      "release_date": "2024-10-18",
+      "title": "Saving Bikini Bottom: The Sandy Cheeks Movie",
+      "video": false,
+      "vote_average": 0,
+      "vote_count": 0
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/cyKH7pDFlxIXluqRyNoHHEpxSDX.jpg",
+      "genre_ids": [
+        80,
+        28,
+        53,
+        18
+      ],
+      "id": 646097,
+      "original_language": "en",
+      "original_title": "Rebel Ridge",
+      "overview": "A former Marine confronts corruption in a small town when local law enforcement unjustly seizes the bag of cash he needs to post his cousin's bail.",
+      "popularity": 508.775,
+      "poster_path": "/xEt2GSz9z5rSVpIHMiGdtf0czyf.jpg",
+      "release_date": "2024-08-27",
+      "title": "Rebel Ridge",
+      "video": false,
+      "vote_average": 7.014,
+      "vote_count": 744
+    }
+  ],
+  "total_pages": 46288,
+  "total_results": 925742
+}
