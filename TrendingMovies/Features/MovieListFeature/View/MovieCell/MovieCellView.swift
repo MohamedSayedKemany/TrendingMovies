@@ -20,7 +20,6 @@ struct MovieCellView: View {
             } placeholder: {
                 ProgressView()
             }
-//            .frame(maxWidth: .infinity)
 
             Text(movie.title)
                 .foregroundColor(.white)
