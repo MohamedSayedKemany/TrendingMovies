@@ -10,6 +10,7 @@ import SwiftUI
 struct MovieListView: View {
     @ObservedObject var viewModel: MovieListViewModel
     @ObservedObject var genreViewModel: GenreViewModel
+    @StateObject private var router = Router()
     
     init(viewModel: MovieListViewModel, genreViewModel: GenreViewModel) {
         self.viewModel = viewModel
@@ -17,33 +18,38 @@ struct MovieListView: View {
     }
     
     var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack {
-                    TextField("Search", text: $viewModel.searchText)
-                        .textFieldStyle(.roundedBorder)
-                        .padding()
-                    
-                    ScrollView(.horizontal) {
-                        LazyHStack {
-                            ForEach(genreViewModel.genres) { genre in
-                                FilterChip(genre: genre, isSelected: viewModel.selectedGenres.contains(genre.id), onSelect: { [weak viewModel] isSelected in
-                                    if isSelected {
-                                        viewModel?.selectedGenres.insert(genre.id)
-                                    } else {
-                                        viewModel?.selectedGenres.remove(genre.id)
-                                    }
-                                })
-                            }
-                        }
-                        .padding()
-                    }
-                    
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: UIScreen.main.bounds.size.width / 2 - 5))]) {
-                            ForEach(viewModel.filteredMovies) { movie in
-                                NavigationLink(destination: MovieDetailsView(viewModel: MovieDetailsViewModel(movieId: movie.id))) {
-                                    MovieCellView(movie: movie)
+        NavigationStack(path: $router.path) {
+            
+            VStack {
+                
+                CustomTextField(text: $viewModel.searchText, placeholder: "Search movies")
+                    .padding([.leading, .trailing], 16)
+                
+                ScrollView(.horizontal) {
+                    LazyHStack {
+                        ForEach(genreViewModel.genres) { genre in
+                            FilterChip(genre: genre, isSelected: viewModel.selectedGenres.contains(genre.id), onSelect: { [weak viewModel] isSelected in
+                                if isSelected {
+                                    viewModel?.selectedGenres.insert(genre.id)
+                                } else {
+                                    viewModel?.selectedGenres.remove(genre.id)
                                 }
+                            })
+                        }
+                    }
+                    .frame(height: 50)
+                    .padding([.leading, .trailing], 16)
+                    .padding([.top, .bottom], 5)
+                    
+                }
+                
+                ScrollView {
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: UIScreen.main.bounds.size.width / 2 - 5))]) {
+                        ForEach(viewModel.filteredMovies) { movie in
+                            Button(action: {
+                                router.push(.movieDetails(movie: movie))
+                            }) {
+                                MovieCellView(movie: movie)
                             }
                             .onAppear { [weak viewModel] in
                                 guard let viewModel else { return }
@@ -51,11 +57,13 @@ struct MovieListView: View {
                                     viewModel.fetchMoreMovies()
                                 }
                             }
+                            
+                        }
                         .padding()
                     }
                 }
             }
-            .background(Color.white)
+            .background(Color.black)
             .onAppear { [weak viewModel] in
                 guard let viewModel else { return }
                 if viewModel.movies.isEmpty {
@@ -65,7 +73,12 @@ struct MovieListView: View {
                     genreViewModel.fetchGenres()
                 }
             }
-            .navigationBarTitle("Movies")
+            .navigationDestination(for: Route.self) { route in
+                switch route {
+                case .movieDetails(let movie):
+                    MovieDetailsView(viewModel: MovieDetailsViewModel(movieId: movie.id))
+                }
+            }
         }
     }
 }

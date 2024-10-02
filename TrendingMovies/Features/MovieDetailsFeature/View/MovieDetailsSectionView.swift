@@ -16,7 +16,7 @@ struct MovieDetailsSectionView: View {
             if let overview = movie?.overview {
                 Text(overview)
                     .font(.subheadline)
-                    .foregroundColor(.gray)
+                    .foregroundColor(.white)
                     .padding(.top, 4)
             }
             
@@ -33,7 +33,7 @@ struct MovieDetailsSectionView: View {
                 if let spokenLanguages = movie?.spokenLanguages {
                     Text("Spoken Languages: \(spokenLanguages.map { $0.name }.joined(separator: ", "))")
                         .font(.subheadline)
-                        .foregroundColor(.gray)
+                        .foregroundColor(.white)
                 }
             }
             
@@ -42,18 +42,18 @@ struct MovieDetailsSectionView: View {
                     if let status = movie?.status {
                         Text("Status: \(status)")
                             .font(.subheadline)
-                            .foregroundColor(.gray)
+                            .foregroundColor(.white)
                     }
                     
                     if let budget = movie?.budget {
                         Text("Budget:")
                             .font(.subheadline)
-                            .foregroundColor(.gray)
+                            .foregroundColor(.white)
                         
                         Text(AppUtils.formatCurrency(budget))
                             .font(.subheadline)
                             .bold()
-                            .foregroundColor(.gray)
+                            .foregroundColor(.white)
                     }
                 }
                 
@@ -63,16 +63,16 @@ struct MovieDetailsSectionView: View {
                     if let runtime = movie?.runtime {
                         Text("Runtime: \(runtime) minutes")
                             .font(.subheadline)
-                            .foregroundColor(.gray)
+                            .foregroundColor(.white)
                     }
                     if let revenue = movie?.revenue {
                         Text("Revenue:")
                             .font(.footnote)
-                            .foregroundColor(.gray)
+                            .foregroundColor(.white)
                         
                         Text(AppUtils.formatCurrency(revenue))
                             .font(.footnote)
-                            .foregroundColor(.gray)
+                            .foregroundColor(.white)
                     }
                 }
             }

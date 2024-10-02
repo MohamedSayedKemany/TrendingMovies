@@ -10,7 +10,7 @@ import SwiftUI
 struct SplashScreen: View {
     var body: some View {
         VStack {
-            Image("YourSplashScreenImage") 
+            Image("splash") 
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(maxWidth: .infinity)

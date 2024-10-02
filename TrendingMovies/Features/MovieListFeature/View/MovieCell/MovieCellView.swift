@@ -15,25 +15,27 @@ struct MovieCellView: View {
             AsyncImage(url: URL(string: "\(Constants.imageBaseUrl)\(movie.posterPath)")!) { image in
                 image
                     .resizable()
-                    .aspectRatio(contentMode: .fit)
+                    .aspectRatio(contentMode: .fill)
                     .frame(maxWidth: .infinity)
             } placeholder: {
                 ProgressView()
             }
-            .frame(maxWidth: .infinity)
+//            .frame(maxWidth: .infinity)
 
             Text(movie.title)
-                .foregroundColor(.black)
+                .foregroundColor(.white)
                 .font(.headline)
                 .padding(.top, 4)
+                .padding(.leading, 8)
             
             Text(movie.releaseDate)
-                .foregroundColor(.black)
+                .foregroundColor(.white)
                 .font(.caption)
-                .padding(.top, 4)
+                .padding([.top, .bottom], 4)
+                .padding(.leading, 8)
         }
-        .padding(8)
-        .background(Color.gray)
+//        .padding(8)
+        .background(Color.darkGrey)
         .cornerRadius(8)
     }
 }

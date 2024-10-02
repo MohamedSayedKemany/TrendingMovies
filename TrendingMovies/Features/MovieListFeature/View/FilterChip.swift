@@ -18,9 +18,12 @@ struct FilterChip: View {
         }) {
             Text(genre.name)
                 .padding(8)
-                .foregroundColor(isSelected ? .white : .black)
-                .background(isSelected ? Color.blue : Color.gray)
-                .cornerRadius(8)
+                .background(isSelected ? Color.orange : Color.black)
+                .foregroundColor(isSelected ? .black : .white)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(isSelected ? Color.clear : Color.orange, lineWidth: 2)
+                )
         }
     }
 }

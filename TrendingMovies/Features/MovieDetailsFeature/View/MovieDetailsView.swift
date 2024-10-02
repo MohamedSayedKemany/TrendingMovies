@@ -17,22 +17,19 @@ struct MovieDetailsView: View {
                     AsyncImage(url: imageUrl) { image in
                         image
                             .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(maxWidth: .infinity, maxHeight: UIScreen.main.bounds.height / 3)
+                            .frame(width: UIScreen.main.bounds.width, height: 400)
                     } placeholder: {
                         ProgressView()
                     }
-                    .frame(maxWidth: .infinity)
                 }
                 
                 MovieInfoSectionView(movie: viewModel.movie)
-                    .padding()
                 
                 MovieDetailsSectionView(movie: viewModel.movie)
                     .padding()
             }
-            .padding()
         }
+        .background(.black)
     }
 }
 

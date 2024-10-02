@@ -11,7 +11,7 @@ struct MovieInfoSectionView: View {
     let movie: MovieDetails?
     
     var body: some View {
-        HStack {
+        HStack(alignment: .top) {
             if let posterPath = movie?.posterPath, let imageUrl = URL(string: "\(Constants.imageBaseUrl)\(posterPath)") {
                 AsyncImage(url: imageUrl) { image in
                     image
@@ -27,12 +27,12 @@ struct MovieInfoSectionView: View {
                 Text(movie?.originalTitle ?? "")
                     .font(.title3)
                     .fontWeight(.semibold)
-                    .foregroundColor(.black)
+                    .foregroundColor(.white)
                 
                 if let genres = movie?.genres {
                     Text("Genres: \(genres.map { $0.name }.joined(separator: ", "))")
                         .font(.subheadline)
-                        .foregroundColor(.gray)
+                        .foregroundColor(.white)
                 }
             }
         }
